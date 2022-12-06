@@ -8,20 +8,33 @@ import React, { useState, useEffect } from 'react'
 //! This is where cleanup function comes in.
 //! Whenever we have useEffect we have an option of returning a function...
 //! Whatever we place inside the return callback function will be invoked once we exit.
+//! When refresh page there is initial render and there is useEffect with useEffect we trigger re-render and before we call that useEffect (before we add another event listener) we clean that up.
+//! Here we could use dependencies list ([]) and trigger the useEffect only once when component mount and when we check the event-listener we have only 1 event listener.
+//! But cleanup function is very important when we dealing with component appearing and disappearing meaning there is going to be a conditional rendering... There is gonna be components are displayed and then removed and problem with this case is that eventhough useEffect runs only the initial render(mount), each time we show and hide the component, it will add event listener or whatever side effect we have.
 const UseEffectCleanup = () => {
   const [size, setSize] = useState(window.innerWidth)
 
+  console.log('render')
   const checkSize = () => {
     setSize(window.innerWidth)
   }
+  // useEffect(() => {
+  //   console.log('useEffect')
+  //   window.addEventListener('resize', checkSize)
+  //   return () => {
+  //     console.log('cleanup')
+  //     window.removeEventListener('resize', checkSize)
+  //   }
+  // })
+
   useEffect(() => {
-    console.log('')
+    console.log('useEffect')
     window.addEventListener('resize', checkSize)
-    return () => {
-      console.log('cleanup')
-      window.removeEventListener('resize', checkSize)
-    }
-  })
+    // return () => {
+    //   console.log('cleanup')
+    //   window.removeEventListener('resize', checkSize)
+    // }
+  }, [])
   return (
     <>
       <h1>window</h1>
