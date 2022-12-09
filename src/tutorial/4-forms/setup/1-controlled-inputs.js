@@ -15,13 +15,33 @@ const ControlledInputs = () => {
   //! Now we add onChange and with onChange we can access the event object and in this case we are looking for is the event.target.value. This will give us whatever is typed in the input.
   //! With all that now we control the state with setFirstName and with value attribute also controlling the input.
 
+  //! Now we can use the state below and submitHandler function to create people array...
+  const [people, setPeople] = useState([])
+
   const submitHandler = (e) => {
     //! When we submit the form, browser try to submit it and refresh the page...
     //! To prevent this action we will use preventDefault on event.
     e.preventDefault()
-    console.log('hello world')
+    //console.log('hello world')
+
     //! Now we have access to the firstName and email
-    console.log(firstName, email)
+    //console.log(firstName, email)
+
+    //! only add item to array if both of the values are "true" otherwise send message
+    //! ES6 shorthand syntax used -> keyname matches the variable that holds the value, we can just write ones (Before ES6 --> {firstName: firstName} After ES6 --> {firstName}
+    if (firstName && email) {
+      //! for key value what we use is not a good way but normally some package called UUID used
+      const person = { id: new Date().getTime().toString(), firstName, email }
+      //console.log(person)
+      setPeople((people) => {
+        return [...people, person] //! function is not compolsury here...
+      })
+      //! set back firstName and email back to empty string
+      setFirstName('')
+      setEmail('')
+    } else {
+      console.log('empty values')
+    }
   }
   return (
     <article>
@@ -51,6 +71,15 @@ const ControlledInputs = () => {
         <button type='submit'>add person</button>
         {/* <button type='submit' onClick={submitHandler}>add person</button> */}
       </form>
+      {people.map((person) => {
+        const { id, firstName, email } = person
+        return (
+          <div key={id} className='item'>
+            <h4>{firstName}</h4>
+            <p>{email}</p>
+          </div>
+        )
+      })}
     </article>
   )
 }
