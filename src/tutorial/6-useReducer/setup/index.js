@@ -1,6 +1,7 @@
 import React, { useState, useReducer } from 'react'
 import Modal from './Modal'
 import { data } from '../../../data'
+import { reducer } from './reducer'
 //? ----1-----
 //! In order to affect anythink in the state we would need to dispatch it
 //! We call "dispatch()" and in it ALWAYS need to pass in the object with a property by the name of "type".
@@ -13,26 +14,39 @@ import { data } from '../../../data'
 //? ----3-----
 //! Now in the reducer we are not only checking for the type but also want to grab that payload.
 //! Before adding it to return state, grab the all state value in that property...
-const reducer = (state, action) => {
-  if (action.type === 'ADD_ITEM') {
-    const newPeople = [...state.people, action.payload]
-    return {
-      ...state,
-      people: newPeople,
-      isModalOpen: true,
-      modalContent: 'item added',
-    }
-  }
-  if (action.type === 'NO_VALUE') {
-    return {
-      ...state,
-      isModalOpen: true,
-      modalContent: 'Please enter value',
-    }
-  }
-  //! For the last state we can return a state but in practice throwing error if the action that we passed in does not match any of the types that we are checking for...
-  throw new Error('No matching action type')
-}
+// const reducer = (state, action) => {
+//   if (action.type === 'ADD_ITEM') {
+//     const newPeople = [...state.people, action.payload]
+//     return {
+//       ...state,
+//       people: newPeople,
+//       isModalOpen: true,
+//       modalContent: 'item added',
+//     }
+//   }
+//   if (action.type === 'NO_VALUE') {
+//     return {
+//       ...state,
+//       isModalOpen: true,
+//       modalContent: 'Please enter value',
+//     }
+//   }
+//   //? ---5---
+//   //! we wanna call it after 3 seconds for doing it we will pass the closeModal function to the Modal component as a prop.
+//   if (action.type === 'CLOSE_MODAL') {
+//     return { ...state, isModalOpen: false }
+//   }
+//   //? ---7---
+//   if (action.type === 'REMOVE_ITEM') {
+//     const newPeople = state.people.filter(
+//       (person) => person.id !== action.payload
+//     )
+//     return { ...state, people: newPeople }
+//   }
+
+//   //! For the last state we can return a state but in practice throwing error if the action that we passed in does not match any of the types that we are checking for...
+//   throw new Error('No matching action type')
+// }
 const defaultState = {
   people: [],
   isModalOpen: false,
@@ -56,9 +70,16 @@ const Index = () => {
       dispatch({ type: 'NO_VALUE' })
     }
   }
+  //? ---4---
+  //! Lets create a function that is responsible for the closing modal
+  const closeModal = () => {
+    dispatch({ type: 'CLOSE_MODAL' })
+  }
   return (
     <>
-      {state.isModalOpen && <Modal modalContent={state.modalContent} />}
+      {state.isModalOpen && (
+        <Modal closeModal={closeModal} modalContent={state.modalContent} />
+      )}
       <form onSubmit={handleSubmit} className='form'>
         <div>
           <input
@@ -73,8 +94,18 @@ const Index = () => {
       </form>
       {state.people.map((person) => {
         return (
-          <div key={person.id}>
+          <div key={person.id} className='item'>
             <h4>{person.name}</h4>
+            {/* //? ---6--- */}
+            {/* //! Lets create a button to remove item */}
+            {/* //! for that we add a payload for id because we need to use which item we will remove  */}
+            <button
+              onClick={() =>
+                dispatch({ type: 'REMOVE_ITEM', payload: person.id })
+              }
+            >
+              remove
+            </button>
           </div>
         )
       })}
