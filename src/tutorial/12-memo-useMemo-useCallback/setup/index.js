@@ -4,21 +4,37 @@ import { useFetch } from '../../9-custom-hooks/setup/2-useFetch'
 const url = 'https://course-api.com/javascript-store-products'
 
 // every time props or state changes, component re-renders
-//! We create a addToCart functionality and there is a issue that when we click to addToCart we are re-render all the items.
-//! What happens is that when we trigger the re-render with useState and everytime we create the addToCart function from scratch.
-//! Solution is useCallback which essentially does the same think as React.memo but now it is deal with function. It is check has the value of the function changed. If it is not changed, React will not create this function from scratch.
-//! call useCallback hook and pass in the function and also do not forget to add dependencies array.
-//! with dependency array each and every time we update the cart value we want also create the function.
+//! useMemo ,unlike the useCallback which remembers the function, deals with a value.
+//! Do not mix that React.memo looking for the props and see whether the props change however useMemo is specifially for the value.
+//! For this purpouse lets create a function that calculate the most expensive value as far as in the products.
+const calculateMostExpensive = (data) => {
+  //! below function returns a value and suppose took long time to calculate
+  //! and everytime we click the count, we calling the hello
+  //! It will be good to remember that value and only re-calculate it when the data is changed and for that we will use useMemo...
+  console.log('hello')
+  return (
+    data.reduce((total, item) => {
+      const price = item.fields.price
+      if (price >= total) {
+        total = price
+      }
+      return total
+    }, 0) / 100
+  )
+}
 const Index = () => {
   const { products } = useFetch(url)
   const [count, setCount] = useState(0)
-  //! Lets create a new state
   const [cart, setCart] = useState(0)
 
-  //! And also addToCart function and pass it to down
   const addToCart = useCallback(() => {
     setCart(cart + 1)
   }, [cart])
+  //! create variable with useMemo
+  const mostExpensive = useMemo(
+    () => calculateMostExpensive(products),
+    [products]
+  )
   return (
     <>
       <h1>Count : {count}</h1>
@@ -26,6 +42,10 @@ const Index = () => {
         click me
       </button>
       <h1 style={{ marginTop: '3rem' }}> cart : {cart}</h1>
+      {/* <h1>Most Expensive = ${calculateMostExpensive(products)}</h1> */}
+      {/* //! pass the created variable using useMemo */}
+      {/* //! Now everythink is the same but when we clicked the count no more hello on the console */}
+      <h1>Most Expensive = ${mostExpensive}</h1>
       <BigList products={products} addToCart={addToCart} />
     </>
   )
