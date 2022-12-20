@@ -1,19 +1,22 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 export const useFetch = (url) => {
   const [loading, setLoading] = useState(true)
   const [products, setProducts] = useState([])
 
-  const getProducts = async () => {
+  const getProducts = useCallback(async () => {
     const response = await fetch(url)
     const products = await response.json()
     setProducts(products)
     setLoading(false)
-  }
-
+  }, [url])
+  //??? Below we have an warning that saying "useEffect has a missing dependency: "getProducts". Either include it or remove dependency".
+  //??? If we set getProducts as a dependencies, we will create this function from scratch every re-render which will cause infitinite loop.
+  //??? Solution is useCallback...
+  //??? Once we create the useCallback we can now add the getProducts to the dependencies...
   useEffect(() => {
     getProducts()
-  }, [url])
+  }, [url, getProducts])
   return { loading, products }
 }
 
